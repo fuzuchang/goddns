@@ -21,8 +21,8 @@ var (
 )
 
 const (
-	ACCESS_KEY_ID     = ""
-	ACCESS_KEY_SECRET = ""
+	ACCESS_KEY_ID     = "LTAI4GD1muNj79DHRnRFYBKV"
+	ACCESS_KEY_SECRET = "cilZfsgjqJ3rSfvNPqovTsrbe5LcaD"
 	DOMAIN_NAME       = "fuzuchang.com"
 	JSON_IP           = "https://jsonip.com"
 )
