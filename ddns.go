@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 )
 
@@ -21,8 +22,8 @@ var (
 )
 
 const (
-	ACCESS_KEY_ID     = "LTAI4GD1muNj79DHRnRFYBKV"
-	ACCESS_KEY_SECRET = "cilZfsgjqJ3rSfvNPqovTsrbe5LcaD"
+	ACCESS_KEY_ID     = ""
+	ACCESS_KEY_SECRET = ""
 	DOMAIN_NAME       = "fuzuchang.com"
 	JSON_IP           = "https://jsonip.com"
 )
@@ -80,7 +81,7 @@ func getPublicIp() (string, error) {
 
 //解析命令行参数
 func parseVar() {
-	flag.StringVar(&HostRecord, "r", "dt", "指定主机记录")
+	flag.StringVar(&HostRecord, "r", "demo", "指定主机记录")
 }
 
 //初始化
@@ -99,7 +100,8 @@ func init() {
 
 func updateDDNS() {
 	//获取公网IP
-	ip, _ := getPublicIp()
+	// ip, _ := getPublicIp()
+	ip := parseIp()
 	Info.Println("ip:" + ip)
 	if ip != oldIp || HostRecord != oldHostRecord {
 		oldIp = ip
@@ -110,12 +112,40 @@ func updateDDNS() {
 
 var oldIp, oldHostRecord string
 
+//获取IP
+func parseIp() string {
+	// searchUrl := "https://www.baidu.com/s?wd=ip"
+	searchUrl := "http://www.net.cn/static/customercare/yourip.asp"
+
+	res, err := http.Get(searchUrl)
+
+	if err != nil {
+		Error.Println(err)
+	}
+
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		Error.Println("status code error: %d %s", res.StatusCode, res.Status)
+	}
+
+	// Load the HTML document
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		Error.Println(err)
+	}
+
+	// Find the review items
+	ip := doc.Find("h2").Text()
+
+	return ip
+}
+
 func main() {
 	//获取命令行参数
 	flag.Parse()
 	updateDDNS()
 	// 每10分钟执行一次
-	for range time.Tick(10 * 60 * time.Second) {
+	for range time.Tick(5 * 60 * time.Second) {
 		updateDDNS()
 	}
 }
